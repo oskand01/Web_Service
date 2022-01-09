@@ -23,7 +23,10 @@ public interface Person {
     void setActive(boolean active);
 
     List<String> getGroups();
-    
+
+    List<String> getGroupNames();
+
+
     void addGroup(String groupId);
 
     void setGroups(Map<String, String> groups);

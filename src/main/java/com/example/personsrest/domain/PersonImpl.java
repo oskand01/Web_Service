@@ -44,6 +44,11 @@ public class PersonImpl implements Person {
 
     @Override
     public List<String> getGroups() {
+        return new ArrayList<>(groups.keySet());
+    }
+
+    @Override
+    public List<String> getGroupNames() {
         return new ArrayList<>(groups.values());
     }
 
