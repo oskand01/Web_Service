@@ -62,6 +62,7 @@ public class PersonImpl implements Person {
 
         if (!groups.containsKey(groupId)) {
             groups.put(groupId, name);
+            log.info("\n\ngroupId: " + groupId + "\ngroupName: " + name + "\n");
         }
     }
 
