@@ -27,4 +27,6 @@ public class PersonDTO {
         this.age = age;
         this.groups = groups;
     }
+
+
 }

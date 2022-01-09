@@ -1,21 +1,25 @@
 package com.example.personsrest.domain;
 
+import com.example.personsrest.remote.GroupRemote;
+import com.example.personsrest.remote.GroupRemoteImpl;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
+@Slf4j
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class PersonImpl implements Person {
 
     String id;
     String name;
     String city;
     int age;
-    List<String> groups = new ArrayList<>();
+    Map<String, String> groups = new HashMap<>();
 
     public PersonImpl(String name, String city, int age) {
         this.id = UUID.randomUUID().toString();
@@ -24,40 +28,6 @@ public class PersonImpl implements Person {
         this.age = age;
     }
 
-    @Override
-    public String getId() {
-        return null;
-    }
-
-    @Override
-    public String getName() {
-        return null;
-    }
-
-    @Override
-    public void setName(String name) {
-
-    }
-
-    @Override
-    public int getAge() {
-        return 0;
-    }
-
-    @Override
-    public void setAge(int age) {
-
-    }
-
-    @Override
-    public String getCity() {
-        return null;
-    }
-
-    @Override
-    public void setCity(String city) {
-
-    }
 
     @Override
     public boolean isActive() {
@@ -71,16 +41,29 @@ public class PersonImpl implements Person {
 
     @Override
     public List<String> getGroups() {
-        return null;
+        return new ArrayList<>(groups.values());
+    }
+
+
+    @Override
+    public void setGroups(Map<String, String> groups) {
+        this.groups = groups;
     }
 
     @Override
-    public void addGroup(String name) {
-        this.groups.add(name);
+    public void addGroup(String groupId) {
+        GroupRemote groupRemote = new GroupRemoteImpl();
+        String name = groupRemote.getNameById(groupId);
+
+        if (!groups.containsKey(groupId)) {
+            groups.put(groupId, name);
+        }
     }
 
     @Override
     public void removeGroup(String groupId) {
-
+        GroupRemote groupRemote = new GroupRemoteImpl();
+        groupRemote.removeGroup(groupId);
+        groups.remove(groupId);
     }
 }

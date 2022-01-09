@@ -1,6 +1,7 @@
 package com.example.personsrest.domain;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Person {
     String getId();
@@ -22,8 +23,10 @@ public interface Person {
     void setActive(boolean active);
 
     List<String> getGroups();
-
+    
     void addGroup(String groupId);
+
+    void setGroups(Map<String, String> groups);
 
     void removeGroup(String groupId);
 }

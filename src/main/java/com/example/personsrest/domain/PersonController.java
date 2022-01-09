@@ -1,13 +1,10 @@
 package com.example.personsrest.domain;
 
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,22 +66,48 @@ public class PersonController {
         }
     }
 
-    @PutMapping("/{id}/addGroup/{name}")
-    public ResponseEntity<PersonDTO> addGroup(@PathVariable("id") String id, @PathVariable("name") String name) {
+    @PutMapping("{personId}/addGroup/{groupName}")
+    public ResponseEntity<PersonDTO> addGroup(@PathVariable("personId") String personId, @PathVariable("groupName") String groupName) {
         try {
             return ResponseEntity.ok(
                     toDTO(
-                            personService.addGroup(id,
-                                    name)));
+                            personService.addGroup(personId,
+                                    groupName)));
         } catch (PersonNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    public static PersonDTO toDTO(Person person) {
-        log.info(person.getName());
+    @DeleteMapping("{id}/removeGroup/{groupId}")
+    public ResponseEntity<PersonDTO> removeGroup(@PathVariable("id") String id, @PathVariable("groupId") String groupId) {
+        try {
+            return ResponseEntity.ok(
+                    toDTO(
+                            personService.removeGroup(id,
+                                    groupId)));
+        } catch (PersonNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
-        return new PersonDTO(person.getId(), person.getName(),
+ /*   @GetMapping
+    public List<PersonDTO> all(@RequestParam String search, @RequestParam int pagesize, @RequestParam int pagenumber) {
+        return personService.allPaginated(search, pagesize, pagenumber).map(PersonController::toDTO)
+                .collect(Collectors.toList());
+    }
+*/
+
+    public static PersonDTO toDTO(Person person) {
+
+        PersonDTO personDTO = new PersonDTO(person.getId(), person.getName(),
                 person.getCity(), person.getAge(), person.getGroups());
+
+        if(personDTO.getGroups().isEmpty()) {
+            log.info("\n\npersonDTO.getGroups(): []\n");
+        } else {
+            log.info("\n\npersonDTO.getGroups().get(0): " + personDTO.getGroups().get(0) + "\n");
+        }
+
+        return personDTO;
     }
 }

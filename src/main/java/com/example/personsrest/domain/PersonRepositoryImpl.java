@@ -5,25 +5,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 public class PersonRepositoryImpl implements PersonRepository {
 
-    Map<String, PersonImpl> persons = new HashMap<>();
-
+    Map<String, Person> persons = new HashMap<>();
 
     @Override
     public Optional<Person> findById(String id) {
-        return null;
+        return Optional.of(persons.get(id));
     }
 
     @Override
     public List<Person> findAll() {
-        return null;
+        return new ArrayList<>(persons.values());
     }
 
     @Override
@@ -37,16 +33,14 @@ public class PersonRepositoryImpl implements PersonRepository {
     }
 
     @Override
-    public PersonImpl save(Person person) {
-        log.info(person.getName());
-        PersonImpl person1 = new PersonImpl(person.getName(), person.getCity(), person.getAge());
-        persons.put(person1.id, person1);
-        return person1;
+    public Person save(Person person) {
+        persons.put(person.getId(), person);
+        return person;
     }
 
     @Override
     public void delete(String id) {
-
+        persons.remove(id);
     }
 
     @Override
