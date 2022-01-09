@@ -1,11 +1,14 @@
 package com.example.personsrest.domain;
 
+import com.example.personsrest.Config;
 import com.example.personsrest.remote.GroupRemote;
 import com.example.personsrest.remote.GroupRemoteImpl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.*;
 
@@ -52,7 +55,9 @@ public class PersonImpl implements Person {
 
     @Override
     public void addGroup(String groupId) {
-        GroupRemote groupRemote = new GroupRemoteImpl();
+        ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+        GroupRemote groupRemote = context.getBean(GroupRemote.class);
+
         String name = groupRemote.getNameById(groupId);
 
         if (!groups.containsKey(groupId)) {
@@ -62,7 +67,9 @@ public class PersonImpl implements Person {
 
     @Override
     public void removeGroup(String groupId) {
-        GroupRemote groupRemote = new GroupRemoteImpl();
+        ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+        GroupRemote groupRemote = context.getBean(GroupRemote.class);
+
         groupRemote.removeGroup(groupId);
         groups.remove(groupId);
     }

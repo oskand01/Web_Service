@@ -21,13 +21,15 @@ public class GroupRemoteImpl implements GroupRemote {
         this.webClient = WebClient.builder()
                 .baseUrl("https://groups.edu.sensera.se/api/")
                 .build();
-
-        this.token = KeyCloakToken.acquire("https://iam.sensera.se/", "test", "group-api", "user", "djnJnPf7VCQvp3Fc")
-                .block();
     }
+
+    // New token for every webclient request to avoid timeout
 
     @Override
     public String getNameById(String groupId) {
+        token = KeyCloakToken.acquire("https://iam.sensera.se/", "test", "group-api", "user", "djnJnPf7VCQvp3Fc")
+                .block();
+
         Mono<Group> group = webClient.get()
                 .uri("groups/" + groupId)
                 .header("Authorization", "Bearer " + token.accessToken)
@@ -40,6 +42,8 @@ public class GroupRemoteImpl implements GroupRemote {
 
     @Override
     public String createGroup(String name) {
+        token = KeyCloakToken.acquire("https://iam.sensera.se/", "test", "group-api", "user", "djnJnPf7VCQvp3Fc")
+                .block();
 
         CreateGroup body = new CreateGroup(name);
 
@@ -57,6 +61,8 @@ public class GroupRemoteImpl implements GroupRemote {
 
     @Override
     public String removeGroup(String id) {
+        token = KeyCloakToken.acquire("https://iam.sensera.se/", "test", "group-api", "user", "djnJnPf7VCQvp3Fc")
+                .block();
 
         webClient.delete()
                 .uri("groups/" + id)

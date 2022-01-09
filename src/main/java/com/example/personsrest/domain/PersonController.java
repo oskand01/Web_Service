@@ -98,12 +98,11 @@ public class PersonController {
 */
 
     public static PersonDTO toDTO(Person person) {
-
         PersonDTO personDTO = new PersonDTO(person.getId(), person.getName(),
                 person.getCity(), person.getAge(), person.getGroups());
 
-        if(personDTO.getGroups().isEmpty()) {
-            log.info("\n\npersonDTO.getGroups(): []\n");
+        if (personDTO.getGroups().isEmpty()) {
+            log.info("\n\npersonDTO.getGroups(): " + personDTO.getGroups() + "\n");
         } else {
             log.info("\n\npersonDTO.getGroups().get(0): " + personDTO.getGroups().get(0) + "\n");
         }
