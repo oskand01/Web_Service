@@ -22,7 +22,7 @@ public class PersonImpl implements Person {
     String name;
     String city;
     int age;
-    Map<String, String> groups = new HashMap<>();
+    List<String> groups = new ArrayList<>();
 
     public PersonImpl(String name, String city, int age) {
         this.id = UUID.randomUUID().toString();
@@ -44,32 +44,13 @@ public class PersonImpl implements Person {
 
     @Override
     public List<String> getGroups() {
-        return new ArrayList<>(groups.keySet());
+        return groups;
     }
 
-    @Override
-    public List<String> getGroupNames() {
-        return new ArrayList<>(groups.values());
-    }
-
-
-    @Override
-    public void setGroups(Map<String, String> groups) {
-        this.groups = groups;
-    }
 
     @Override
     public void addGroup(String groupId) {
-        ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-        GroupRemote groupRemote = context.getBean(GroupRemote.class);
-
-        String name = groupRemote.getNameById(groupId);
-
-        if (!groups.containsKey(groupId)) {
-            groups.put(groupId, name);
-            log.info("\n\ngroupId: " + groupId + "\ngroupName: " + name + "\n");
-
-        }
+        groups.add(groupId);
     }
 
     @Override
@@ -78,6 +59,7 @@ public class PersonImpl implements Person {
         GroupRemote groupRemote = context.getBean(GroupRemote.class);
 
         groupRemote.removeGroup(groupId);
+
         groups.remove(groupId);
     }
 }
