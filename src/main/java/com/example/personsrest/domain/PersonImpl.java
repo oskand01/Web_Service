@@ -46,7 +46,6 @@ public class PersonImpl implements Person {
         return groups;
     }
 
-
     @Override
     public void addGroup(String groupId) {
         groups.add(groupId);
