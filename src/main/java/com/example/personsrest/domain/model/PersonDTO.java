@@ -1,4 +1,4 @@
-package com.example.personsrest.domain;
+package com.example.personsrest.domain.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

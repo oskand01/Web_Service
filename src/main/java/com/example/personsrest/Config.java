@@ -1,6 +1,7 @@
 package com.example.personsrest;
 
-import com.example.personsrest.domain.*;
+import com.example.personsrest.domain.repository.PersonRepository;
+import com.example.personsrest.domain.repository.PersonRepositoryImpl;
 import com.example.personsrest.remote.GroupRemote;
 import com.example.personsrest.remote.GroupRemoteImpl;
 import org.springframework.context.annotation.Bean;

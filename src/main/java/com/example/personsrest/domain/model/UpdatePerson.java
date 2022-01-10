@@ -1,4 +1,4 @@
-package com.example.personsrest.domain;
+package com.example.personsrest.domain.model;
 
 import lombok.Value;
 

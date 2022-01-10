@@ -1,11 +1,14 @@
-package com.example.personsrest.domain;
+package com.example.personsrest.domain.repository;
 
+import com.example.personsrest.domain.Person;
+import com.example.personsrest.domain.PersonImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.lang.annotation.Annotation;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class PersonRepositoryImpl implements PersonRepository {
@@ -24,8 +27,12 @@ public class PersonRepositoryImpl implements PersonRepository {
 
     @Override
     public Page<Person> findAllByNameContainingOrCityContaining(String name, String city, Pageable pageable) {
-        return null;
-    }
+        List<Person> list =
+                persons.values().stream()
+                        .filter(person -> person.getName().equalsIgnoreCase(name) || person.getCity().equalsIgnoreCase(city))
+                        .collect(Collectors.toList());
+        return new PageImpl<>(list);    }
+
 
     @Override
     public void deleteAll() {
@@ -43,13 +50,4 @@ public class PersonRepositoryImpl implements PersonRepository {
         persons.remove(id);
     }
 
-    @Override
-    public String value() {
-        return null;
-    }
-
-    @Override
-    public Class<? extends Annotation> annotationType() {
-        return null;
-    }
 }
