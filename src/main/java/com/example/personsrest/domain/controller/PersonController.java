@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +30,14 @@ public class PersonController {
     @GetMapping
     public List<PersonDTO> all(@RequestParam(required = false) Map<String, String> filter) {
 
-        return filter.isEmpty() ? personService.all().map(this::toDTO).collect(Collectors.toList()) :
-                personService.find(filter).stream().map(this::toDTO).collect(Collectors.toList());
+        return filter.isEmpty() ?
+                personService.all()
+                        .map(this::toDTO)
+                        .collect(Collectors.toList())
 
+                : personService.filter(filter).stream()
+                        .map(this::toDTO)
+                        .collect(Collectors.toList());
     }
 
     @GetMapping("{id}")
@@ -45,7 +51,7 @@ public class PersonController {
     }
 
     @PostMapping
-    public ResponseEntity<PersonDTO> createAnimal(@RequestBody CreatePerson createPerson) {
+    public ResponseEntity<PersonDTO> createPerson(@Valid @RequestBody CreatePerson createPerson) {
         PersonDTO person = toDTO(
                 personService.createPerson(
                         createPerson.getName(),
@@ -101,13 +107,6 @@ public class PersonController {
         }
     }
 
- /*   @GetMapping
-    public List<PersonDTO> all(@RequestParam String search, @RequestParam int pagesize, @RequestParam int pagenumber) {
-        return personService.allPaginated(search, pagesize, pagenumber).map(PersonController::toDTO)
-                .collect(Collectors.toList());
-    }
-*/
-
     public PersonDTO toDTO(Person person) {
         List<String> groupNames = new ArrayList<>();
 
@@ -116,8 +115,12 @@ public class PersonController {
                     .map(g -> groupRemote.getNameById(g))
                     .collect(Collectors.toList());
         }
-
-        return new PersonDTO(person.getId(), person.getName(),
-                person.getCity(), person.getAge(), groupNames);
+        return new PersonDTO(
+                person.getId(),
+                person.getName(),
+                person.getCity(),
+                person.getAge(),
+                groupNames
+        );
     }
 }

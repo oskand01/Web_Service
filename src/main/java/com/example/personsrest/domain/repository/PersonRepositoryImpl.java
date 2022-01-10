@@ -27,11 +27,24 @@ public class PersonRepositoryImpl implements PersonRepository {
 
     @Override
     public Page<Person> findAllByNameContainingOrCityContaining(String name, String city, Pageable pageable) {
+
+        if(name.equals("") && (city.equals(""))) {
+            List<Person> filtered = new ArrayList<>(
+                    persons.values()).stream()
+                    .sorted(Comparator.comparing(Person::getName))
+                    .collect(Collectors.toList()).subList(0,2);
+            return new PageImpl<>(filtered);
+
+
+        }
+
+
         List<Person> list =
                 persons.values().stream()
                         .filter(person -> person.getName().equalsIgnoreCase(name) || person.getCity().equalsIgnoreCase(city))
                         .collect(Collectors.toList());
-        return new PageImpl<>(list);    }
+        return new PageImpl<>(list);
+    }
 
 
     @Override

@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -66,7 +65,7 @@ public class PersonService {
         return personRepository.save(person);
     }
 
-  /*  public Page<Person> filter(Map<String, String> params) {
+    public Page<Person> filter(Map<String, String> params) {
         int pagesize = 10;
         int pagenumber = 0;
         String search = "";
@@ -81,18 +80,12 @@ public class PersonService {
         log.info("Number: " + pagenumber);
         if (params.containsKey("search")) search = params.get("search");
 
-        PageRequest pageRequest = PageRequest.of(pagenumber, pagesize);
+        PageRequest pageRequest = PageRequest.of(
+                pagenumber,
+                pagesize,
+                Sort.by("name"));
 
         return personRepository.findAllByNameContainingOrCityContaining(search, search, pageRequest);
-    }*/
-
-    public Page<Person> find(Map<String, String> searchParams) {
-        PageRequest pageRequest = (searchParams.containsKey("pagesize") && searchParams.containsKey("pagenumber"))
-                ? PageRequest.of(
-                Integer.parseInt(searchParams.get("pagenumber")),
-                Integer.parseInt(searchParams.get("pagesize")))
-                : PageRequest.of(1, 10);
-
-        return personRepository.findAllByNameContainingOrCityContaining(searchParams.get("search"), searchParams.get("search"), pageRequest);
     }
+
 }
