@@ -2,7 +2,6 @@ package com.example.personsrest.domain;
 
 import com.example.personsrest.Config;
 import com.example.personsrest.remote.GroupRemote;
-import com.example.personsrest.remote.GroupRemoteImpl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +21,7 @@ public class PersonImpl implements Person {
     String name;
     String city;
     int age;
-    Map<String, String> groups = new HashMap<>();
+    List<String> groups = new ArrayList<>();
 
     public PersonImpl(String name, String city, int age) {
         this.id = UUID.randomUUID().toString();
@@ -44,26 +43,13 @@ public class PersonImpl implements Person {
 
     @Override
     public List<String> getGroups() {
-        return new ArrayList<>(groups.values());
+        return groups;
     }
 
-
-    @Override
-    public void setGroups(Map<String, String> groups) {
-        this.groups = groups;
-    }
 
     @Override
     public void addGroup(String groupId) {
-        ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-        GroupRemote groupRemote = context.getBean(GroupRemote.class);
-
-        String name = groupRemote.getNameById(groupId);
-
-        if (!groups.containsKey(groupId)) {
-            groups.put(groupId, name);
-            log.info("\n\ngroupId: " + groupId + "\ngroupName: " + name + "\n");
-        }
+        groups.add(groupId);
     }
 
     @Override
@@ -71,7 +57,9 @@ public class PersonImpl implements Person {
         ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
         GroupRemote groupRemote = context.getBean(GroupRemote.class);
 
+        //Removes the group from the group API, maybe not needed?
         groupRemote.removeGroup(groupId);
+
         groups.remove(groupId);
     }
 }
