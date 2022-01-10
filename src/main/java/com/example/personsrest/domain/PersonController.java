@@ -1,10 +1,12 @@
 package com.example.personsrest.domain;
 
+import com.example.personsrest.remote.GroupRemote;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,12 +17,11 @@ import java.util.stream.Collectors;
 public class PersonController {
 
     private PersonService personService;
+    private GroupRemote groupRemote;
 
     @GetMapping
     public List<PersonDTO> all() {
-        return personService.all()
-                .map(PersonController::toDTO)
-                .collect(Collectors.toList());
+        return personService.all().map(this::toDTO).collect(Collectors.toList());
     }
 
     @GetMapping("{id}")
@@ -97,14 +98,23 @@ public class PersonController {
     }
 */
 
-    public static PersonDTO toDTO(Person person) {
+    public PersonDTO toDTO(Person person) {
+
+        List<String> groupNames = new ArrayList<>();
+
+        if(!person.getGroups().isEmpty()) {
+            groupNames = person.getGroups().stream()
+                    .map(g -> groupRemote.getNameById(g))
+                    .collect(Collectors.toList());
+        }
+
         PersonDTO personDTO = new PersonDTO(person.getId(), person.getName(),
-                person.getCity(), person.getAge(), person.getGroups());
+                person.getCity(), person.getAge(), groupNames);
 
         if (personDTO.getGroups().isEmpty()) {
-            log.info("\n\npersonDTO.getGroups(): " + personDTO.getGroups() + "\n");
+            log.info("\n\npersonDTO.getGroups(): " + personDTO.getGroups() +"\nperson.getGroups(): " + person.getGroups() + "\n");
         } else {
-            log.info("\n\npersonDTO.getGroups().get(0): " + personDTO.getGroups().get(0) + "\n");
+            log.info("\n\npersonDTO.getGroups().get(0): " + personDTO.getGroups().get(0) + "\nperson.getGroups().get(0): " + person.getGroups().get(0) + "\n");
         }
 
         return personDTO;
