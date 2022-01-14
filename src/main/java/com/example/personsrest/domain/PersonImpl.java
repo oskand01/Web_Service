@@ -1,25 +1,30 @@
 package com.example.personsrest.domain;
 
-import com.example.personsrest.Config;
 import com.example.personsrest.remote.GroupRemote;
+import com.example.personsrest.remote.GroupRemoteImpl;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.*;
 
-@Slf4j
 @Data
+@Entity
+@Table(name = "persons")
 @NoArgsConstructor
 @AllArgsConstructor
 public class PersonImpl implements Person {
 
+    @Id
     String id;
     String name;
     String city;
     int age;
+    @ElementCollection
     List<String> groups = new ArrayList<>();
 
     public PersonImpl(String name, String city, int age) {
@@ -28,7 +33,6 @@ public class PersonImpl implements Person {
         this.city = city;
         this.age = age;
     }
-
 
     @Override
     public boolean isActive() {
@@ -52,12 +56,10 @@ public class PersonImpl implements Person {
 
     @Override
     public void removeGroup(String groupId) {
-        ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
-        GroupRemote groupRemote = context.getBean(GroupRemote.class);
+        GroupRemote groupRemote = new GroupRemoteImpl();
 
         //Removes the group from the group API, maybe not needed?
         groupRemote.removeGroup(groupId);
-
         groups.remove(groupId);
     }
 }

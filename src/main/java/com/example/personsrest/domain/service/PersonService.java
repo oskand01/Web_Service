@@ -47,7 +47,7 @@ public class PersonService {
     }
 
     public void delete(String id) throws PersonNotFoundException {
-        if(personRepository.findById(id).isPresent()) {
+        if (personRepository.findById(id).isPresent()) {
             personRepository.delete(id);
         } else {
             throw new PersonNotFoundException(id);
@@ -65,7 +65,7 @@ public class PersonService {
     public Person removeGroup(String id, String groupId) throws PersonNotFoundException, GroupNotFoundException {
         Person person = get(id);
 
-        if(!person.getGroups().contains(groupId)) {
+        if (!person.getGroups().contains(groupId)) {
             throw new GroupNotFoundException(groupId);
         }
 
@@ -77,15 +77,9 @@ public class PersonService {
         int pagesize = 10;
         int pagenumber = 0;
         String search = "";
-        log.info(params.get("pagesize"));
-
-        params.values().forEach(log::info);
-        params.keySet().forEach(log::info);
 
         if (params.containsKey("pagesize")) pagesize = Integer.parseInt(params.get("pagesize"));
-        log.info("Size: " + pagesize);
         if (params.containsKey("pagenumber")) pagenumber = Integer.parseInt(params.get("pagenumber"));
-        log.info("Number: " + pagenumber);
         if (params.containsKey("search")) search = params.get("search");
 
         PageRequest pageRequest = PageRequest.of(

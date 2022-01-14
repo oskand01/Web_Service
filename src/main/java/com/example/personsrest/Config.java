@@ -1,5 +1,6 @@
 package com.example.personsrest;
 
+import com.example.personsrest.domain.repository.PersonDBRepository;
 import com.example.personsrest.domain.repository.PersonRepository;
 import com.example.personsrest.domain.repository.PersonRepositoryImpl;
 import com.example.personsrest.remote.GroupRemote;
@@ -17,8 +18,8 @@ public class Config {
     }
 
     @Bean
-    public PersonRepository personRepository() {
-        return new PersonRepositoryImpl();
+    public PersonRepository personRepository(PersonDBRepository personDBRepository) {
+        return new PersonRepositoryImpl(personDBRepository);
     }
 
 }
