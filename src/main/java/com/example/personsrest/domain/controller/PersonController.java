@@ -13,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -118,7 +117,6 @@ public class PersonController {
     public ResponseEntity<PersonDTO> notFound(String message) {
         return ResponseEntity.notFound()
                 .header("Message", message)
-                .header("Timestamp", new Date().toString())
                 .build();
     }
 }
