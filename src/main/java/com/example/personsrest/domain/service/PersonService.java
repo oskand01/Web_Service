@@ -4,6 +4,7 @@ import com.example.personsrest.domain.Person;
 import com.example.personsrest.domain.PersonImpl;
 import com.example.personsrest.domain.exception.PersonNotFoundException;
 import com.example.personsrest.domain.repository.PersonRepository;
+import com.example.personsrest.domain.exception.GroupNotFoundException;
 import com.example.personsrest.remote.GroupRemote;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +47,11 @@ public class PersonService {
     }
 
     public void delete(String id) throws PersonNotFoundException {
-        personRepository.delete(id);
+        if(personRepository.findById(id).isPresent()) {
+            personRepository.delete(id);
+        } else {
+            throw new PersonNotFoundException(id);
+        }
     }
 
     public Person addGroup(String id, String name) throws PersonNotFoundException {
@@ -57,11 +62,14 @@ public class PersonService {
         return personRepository.save(person);
     }
 
-    public Person removeGroup(String id, String groupId) throws PersonNotFoundException {
+    public Person removeGroup(String id, String groupId) throws PersonNotFoundException, GroupNotFoundException {
         Person person = get(id);
 
-        person.removeGroup(groupId);
+        if(!person.getGroups().contains(groupId)) {
+            throw new GroupNotFoundException(groupId);
+        }
 
+        person.removeGroup(groupId);
         return personRepository.save(person);
     }
 

@@ -1,7 +1,6 @@
 package com.example.personsrest.domain.repository;
 
 import com.example.personsrest.domain.Person;
-import com.example.personsrest.domain.PersonImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,7 +16,7 @@ public class PersonRepositoryImpl implements PersonRepository {
 
     @Override
     public Optional<Person> findById(String id) {
-        return Optional.of(persons.get(id));
+        return Optional.ofNullable(persons.get(id));
     }
 
     @Override
@@ -28,22 +27,31 @@ public class PersonRepositoryImpl implements PersonRepository {
     @Override
     public Page<Person> findAllByNameContainingOrCityContaining(String name, String city, Pageable pageable) {
 
-        if(name.equals("") && (city.equals(""))) {
-            List<Person> filtered = new ArrayList<>(
-                    persons.values()).stream()
-                    .sorted(Comparator.comparing(Person::getName))
-                    .collect(Collectors.toList()).subList(0,2);
-            return new PageImpl<>(filtered);
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+        int size = persons.size();
+
+        int pages = size / pageSize;
+        List<Person> filtered = null;
+
+        if (pages < 1) {
+            if (name.equals("") && (city.equals(""))) {
+                filtered = persons.values().stream()
+                        .sorted(Comparator.comparing(Person::getName))
+                        .collect(Collectors.toList());
+            } else {
+                filtered = persons.values().stream()
+                        .filter(person -> person.getName().equalsIgnoreCase(name) || person.getCity().equalsIgnoreCase(city))
+                        .sorted(Comparator.comparing(Person::getName))
+                        .collect(Collectors.toList()).subList(0, 2);
+            }
 
 
         }
 
 
-        List<Person> list =
-                persons.values().stream()
-                        .filter(person -> person.getName().equalsIgnoreCase(name) || person.getCity().equalsIgnoreCase(city))
-                        .collect(Collectors.toList());
-        return new PageImpl<>(list);
+        return new PageImpl<>(filtered);
+
     }
 
 

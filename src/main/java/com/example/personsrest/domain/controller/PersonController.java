@@ -6,14 +6,14 @@ import com.example.personsrest.domain.model.CreatePerson;
 import com.example.personsrest.domain.model.PersonDTO;
 import com.example.personsrest.domain.model.UpdatePerson;
 import com.example.personsrest.domain.service.PersonService;
+import com.example.personsrest.domain.exception.GroupNotFoundException;
 import com.example.personsrest.remote.GroupRemote;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,38 +24,36 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PersonController {
 
-    private PersonService personService;
-    private GroupRemote groupRemote;
+    private final PersonService personService;
+    private final GroupRemote groupRemote;
 
     @GetMapping
     public List<PersonDTO> all(@RequestParam(required = false) Map<String, String> filter) {
-
         return filter.isEmpty() ?
                 personService.all()
                         .map(this::toDTO)
                         .collect(Collectors.toList())
-
                 : personService.filter(filter).stream()
-                        .map(this::toDTO)
-                        .collect(Collectors.toList());
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("{id}")
     public ResponseEntity<PersonDTO> get(@PathVariable("id") String id) {
         try {
-            return ResponseEntity.ok(
-                    toDTO(personService.get(id)));
+            return ResponseEntity.ok(toDTO(personService.get(id)));
         } catch (PersonNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return notFound(e.getMessage());
         }
     }
 
     @PostMapping
-    public ResponseEntity<PersonDTO> createPerson(@Valid @RequestBody CreatePerson createPerson) {
+    public ResponseEntity<PersonDTO> createPerson(@RequestBody CreatePerson createPerson) {
         PersonDTO person = toDTO(
                 personService.createPerson(
                         createPerson.getName(),
-                        createPerson.getCity(), createPerson.getAge()));
+                        createPerson.getCity(),
+                        createPerson.getAge()));
 
         return ResponseEntity.ok().body(person);
     }
@@ -63,13 +61,15 @@ public class PersonController {
     @PutMapping("{id}")
     public ResponseEntity<PersonDTO> update(@PathVariable("id") String id, @RequestBody UpdatePerson updatePerson) {
         try {
-            return ResponseEntity.ok(
-                    toDTO(
-                            personService.updatePerson(id,
-                                    updatePerson.getName(), updatePerson.getCity(), updatePerson.getAge()
-                            )));
+            return ResponseEntity.ok(toDTO(
+                    personService.updatePerson(
+                            id,
+                            updatePerson.getName(),
+                            updatePerson.getCity(),
+                            updatePerson.getAge()
+                    )));
         } catch (PersonNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return notFound(e.getMessage());
         }
     }
 
@@ -79,42 +79,33 @@ public class PersonController {
             personService.delete(id);
             return ResponseEntity.ok().build();
         } catch (PersonNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return notFound(e.getMessage());
         }
     }
 
     @PutMapping("{personId}/addGroup/{groupName}")
     public ResponseEntity<PersonDTO> addGroup(@PathVariable("personId") String personId, @PathVariable("groupName") String groupName) {
         try {
-            return ResponseEntity.ok(
-                    toDTO(
-                            personService.addGroup(personId,
-                                    groupName)));
+            return ResponseEntity.ok(toDTO(personService.addGroup(personId, groupName)));
         } catch (PersonNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return notFound(e.getMessage());
         }
     }
 
     @DeleteMapping("{id}/removeGroup/{groupId}")
     public ResponseEntity<PersonDTO> removeGroup(@PathVariable("id") String id, @PathVariable("groupId") String groupId) {
         try {
-            return ResponseEntity.ok(
-                    toDTO(
-                            personService.removeGroup(id,
-                                    groupId)));
-        } catch (PersonNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(toDTO(personService.removeGroup(id, groupId)));
+        } catch (PersonNotFoundException | GroupNotFoundException e) {
+            return notFound(e.getMessage());
         }
     }
 
     public PersonDTO toDTO(Person person) {
-        List<String> groupNames = new ArrayList<>();
+        List<String> groupNames = person.getGroups().stream()
+                .map(groupRemote::getNameById)
+                .collect(Collectors.toList());
 
-        if(!person.getGroups().isEmpty()) {
-            groupNames = person.getGroups().stream()
-                    .map(g -> groupRemote.getNameById(g))
-                    .collect(Collectors.toList());
-        }
         return new PersonDTO(
                 person.getId(),
                 person.getName(),
@@ -122,5 +113,12 @@ public class PersonController {
                 person.getAge(),
                 groupNames
         );
+    }
+
+    public ResponseEntity<PersonDTO> notFound(String message) {
+        return ResponseEntity.notFound()
+                .header("Message", message)
+                .header("Timestamp", new Date().toString())
+                .build();
     }
 }
