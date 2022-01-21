@@ -1,6 +1,6 @@
 package com.example.personsrest;
 
-import com.example.personsrest.domain.Person;
+import com.example.personsrest.domain.entity.Person;
 import com.example.personsrest.domain.repository.PersonRepository;
 import com.example.personsrest.remote.GroupRemote;
 import org.junit.jupiter.api.BeforeEach;
