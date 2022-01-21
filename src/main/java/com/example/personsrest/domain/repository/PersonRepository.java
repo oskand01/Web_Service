@@ -1,6 +1,6 @@
 package com.example.personsrest.domain.repository;
 
-import com.example.personsrest.domain.Person;
+import com.example.personsrest.domain.entity.Person;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

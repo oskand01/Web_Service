@@ -1,6 +1,6 @@
 package com.example.personsrest.domain.controller;
 
-import com.example.personsrest.domain.Person;
+import com.example.personsrest.domain.entity.Person;
 import com.example.personsrest.domain.exception.PersonNotFoundException;
 import com.example.personsrest.domain.model.CreatePerson;
 import com.example.personsrest.domain.model.PersonDTO;
@@ -11,8 +11,13 @@ import com.example.personsrest.remote.GroupRemote;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
+import javax.validation.ValidationException;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,8 +38,8 @@ public class PersonController {
                         .map(this::toDTO)
                         .collect(Collectors.toList())
                 : personService.filter(filter).stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+                        .map(this::toDTO)
+                        .collect(Collectors.toList());
     }
 
     @GetMapping("{id}")
@@ -47,7 +52,7 @@ public class PersonController {
     }
 
     @PostMapping
-    public ResponseEntity<PersonDTO> createPerson(@RequestBody CreatePerson createPerson) {
+    public ResponseEntity<PersonDTO> createPerson(@Valid @RequestBody CreatePerson createPerson) {
         PersonDTO person = toDTO(
                 personService.createPerson(
                         createPerson.getName(),
@@ -58,15 +63,10 @@ public class PersonController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<PersonDTO> update(@PathVariable("id") String id, @RequestBody UpdatePerson updatePerson) {
+    public ResponseEntity<PersonDTO> update(@PathVariable("id") String id, @Valid @RequestBody UpdatePerson updatePerson) {
         try {
             return ResponseEntity.ok(toDTO(
-                    personService.updatePerson(
-                            id,
-                            updatePerson.getName(),
-                            updatePerson.getCity(),
-                            updatePerson.getAge()
-                    )));
+                    personService.updatePerson(id, updatePerson)));
         } catch (PersonNotFoundException e) {
             return notFound(e.getMessage());
         }
@@ -82,10 +82,10 @@ public class PersonController {
         }
     }
 
-    @PutMapping("{personId}/addGroup/{groupName}")
-    public ResponseEntity<PersonDTO> addGroup(@PathVariable("personId") String personId, @PathVariable("groupName") String groupName) {
+    @PutMapping("{id}/addGroup/{groupName}")
+    public ResponseEntity<PersonDTO> addGroup(@PathVariable("id") String id, @PathVariable("groupName") String groupName) {
         try {
-            return ResponseEntity.ok(toDTO(personService.addGroup(personId, groupName)));
+            return ResponseEntity.ok(toDTO(personService.addGroup(id, groupName)));
         } catch (PersonNotFoundException e) {
             return notFound(e.getMessage());
         }
@@ -101,22 +101,30 @@ public class PersonController {
     }
 
     public PersonDTO toDTO(Person person) {
-        List<String> groupNames = person.getGroups().stream()
-                .map(groupRemote::getNameById)
-                .collect(Collectors.toList());
-
         return new PersonDTO(
                 person.getId(),
                 person.getName(),
                 person.getCity(),
                 person.getAge(),
-                groupNames
+                getGroupNames(person)
         );
     }
 
-    public ResponseEntity<PersonDTO> notFound(String message) {
+    private List<String> getGroupNames(Person person) {
+        return person.getGroups().stream()
+                .map(groupRemote::getNameById)
+                .collect(Collectors.toList());
+    }
+
+    private ResponseEntity<PersonDTO> notFound(String message) {
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .buildAndExpand()
+                .toUri();
+
         return ResponseEntity.notFound()
-                .header("Message", message)
+                .header("message", message)
+                .header("path", location.getPath())
                 .build();
     }
 }

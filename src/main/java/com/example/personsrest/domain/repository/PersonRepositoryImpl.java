@@ -1,10 +1,9 @@
 package com.example.personsrest.domain.repository;
 
-import com.example.personsrest.domain.Person;
+import com.example.personsrest.domain.entity.Person;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import javax.transaction.Transactional;
 import java.util.*;
 
@@ -15,6 +14,7 @@ public class PersonRepositoryImpl implements PersonRepository {
 
     @Override
     public Optional<Person> findById(String id) {
+
         return personDBRepository.findById(id);
     }
 

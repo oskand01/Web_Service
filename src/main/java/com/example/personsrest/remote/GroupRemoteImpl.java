@@ -4,14 +4,15 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
+@Slf4j
 @AllArgsConstructor
 public class GroupRemoteImpl implements GroupRemote {
     WebClient webClient;
@@ -30,14 +31,15 @@ public class GroupRemoteImpl implements GroupRemote {
         token = KeyCloakToken.acquire("https://iam.sensera.se/", "test", "group-api", "user", "djnJnPf7VCQvp3Fc")
                 .block();
 
-        Mono<Group> group = webClient.get()
+        return Objects.requireNonNull(webClient.get()
                 .uri("groups/" + groupId)
                 .header("Authorization", "Bearer " + token.accessToken)
                 .retrieve()
                 .bodyToMono(Group.class)
-                .single();
+                .onErrorMap(e -> new Exception("Remote connection failed", e))
+                .single()
+                .block()).getName();
 
-        return Objects.requireNonNull(group.block()).getName();
     }
 
     @Override
@@ -47,16 +49,15 @@ public class GroupRemoteImpl implements GroupRemote {
 
         CreateGroup body = new CreateGroup(name);
 
-        Mono<Group> group = webClient.post()
+        return Objects.requireNonNull(webClient.post()
                 .uri("groups/")
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .body(BodyInserters.fromValue(body))
                 .retrieve()
                 .bodyToMono(Group.class)
-                .single();
-
-        return Objects.requireNonNull(group.block()).getId();
+                .onErrorMap(e -> new Exception("Remote connection failed", e))
+                .block()).getId();
     }
 
     @Override
@@ -68,7 +69,9 @@ public class GroupRemoteImpl implements GroupRemote {
                 .uri("groups/" + id)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token.accessToken)
                 .retrieve()
-                .bodyToMono(Void.class).block();
+                .bodyToMono(Void.class)
+                .onErrorMap(e -> new Exception("Remote connection failed", e))
+                .block();
 
         return id;
     }

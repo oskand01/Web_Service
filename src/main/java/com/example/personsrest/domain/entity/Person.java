@@ -1,4 +1,4 @@
-package com.example.personsrest.domain;
+package com.example.personsrest.domain.entity;
 
 import java.util.List;
 

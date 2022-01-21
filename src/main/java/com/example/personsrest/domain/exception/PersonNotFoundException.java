@@ -1,7 +1,7 @@
 package com.example.personsrest.domain.exception;
 
-public class PersonNotFoundException extends Exception {
+public class PersonNotFoundException extends RuntimeException  {
     public PersonNotFoundException(String message) {
-        super("No person with id '" + message + "' found");
+        super("Person id '" + message + "' not found");
     }
 }

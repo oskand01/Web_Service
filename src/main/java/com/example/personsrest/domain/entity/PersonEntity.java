@@ -1,23 +1,18 @@
-package com.example.personsrest.domain;
+package com.example.personsrest.domain.entity;
 
 import com.example.personsrest.remote.GroupRemote;
 import com.example.personsrest.remote.GroupRemoteImpl;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import javax.persistence.*;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.util.*;
 
 @Data
 @Entity
-@Table(name = "persons")
+@Table(name = "person")
 @NoArgsConstructor
-@AllArgsConstructor
-public class PersonImpl implements Person {
+public class PersonEntity implements Person {
 
     @Id
     String id;
@@ -27,7 +22,8 @@ public class PersonImpl implements Person {
     @ElementCollection
     List<String> groups = new ArrayList<>();
 
-    public PersonImpl(String name, String city, int age) {
+
+    public PersonEntity(String name, String city, int age) {
         this.id = UUID.randomUUID().toString();
         this.name = name;
         this.city = city;

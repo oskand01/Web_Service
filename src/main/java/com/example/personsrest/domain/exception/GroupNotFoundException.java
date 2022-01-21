@@ -1,7 +1,7 @@
 package com.example.personsrest.domain.exception;
 
-public class GroupNotFoundException extends Exception {
+public class GroupNotFoundException extends RuntimeException  {
     public GroupNotFoundException(String message) {
-        super("No group with id '" + message + "' found");
+        super("Group id '" + message + "' not found");
     }
 }
