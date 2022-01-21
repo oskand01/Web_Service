@@ -14,7 +14,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -65,16 +68,25 @@ public class PersonService {
         return personRepository.save(person);
     }
 
-    public Person removeGroup(String id, String groupId) throws PersonNotFoundException, GroupNotFoundException {
+    public Person removeGroup(String id, String group) throws PersonNotFoundException, GroupNotFoundException {
         Person person = get(id);
+        String groupId = group;
 
-        if (!person.getGroups().contains(groupId)) {
-            throw new GroupNotFoundException(groupId);
+        if (!isUUID(group)) {
+            groupId = person.getGroups().stream()
+                    .filter(g -> groupRemote.getNameById(g).equals(group))
+                    .collect(Collectors.joining());
         }
 
-        person.removeGroup(groupId);
-        return personRepository.save(person);
+        if (person.getGroups().contains(groupId)) {
+            person.removeGroup(groupId);
+
+            return personRepository.save(person);
+        } else {
+            throw new GroupNotFoundException("Group '" + group);
+        }
     }
+
 
     public Page<Person> filter(Map<String, String> params) {
         int pageSize = Integer.parseInt(params.getOrDefault("pagesize", "25"));
@@ -84,5 +96,16 @@ public class PersonService {
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("name").and(Sort.by("city")));
 
         return personRepository.findAllByNameContainingOrCityContaining(search, search, pageRequest);
+    }
+
+
+    public boolean isUUID(String string) {
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            UUID.fromString(string);
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
     }
 }

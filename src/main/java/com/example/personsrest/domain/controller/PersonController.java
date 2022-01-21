@@ -91,10 +91,10 @@ public class PersonController {
         }
     }
 
-    @DeleteMapping("{id}/removeGroup/{groupId}")
-    public ResponseEntity<PersonDTO> removeGroup(@PathVariable("id") String id, @PathVariable("groupId") String groupId) {
+    @DeleteMapping("{id}/removeGroup/{group}")
+    public ResponseEntity<PersonDTO> removeGroup(@PathVariable("id") String id, @PathVariable("group") String group) {
         try {
-            return ResponseEntity.ok(toDTO(personService.removeGroup(id, groupId)));
+            return ResponseEntity.ok(toDTO(personService.removeGroup(id, group)));
         } catch (PersonNotFoundException | GroupNotFoundException e) {
             return notFound(e.getMessage());
         }
