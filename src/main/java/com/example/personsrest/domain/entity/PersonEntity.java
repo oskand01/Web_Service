@@ -2,8 +2,10 @@ package com.example.personsrest.domain.entity;
 
 import com.example.personsrest.remote.GroupRemote;
 import com.example.personsrest.remote.GroupRemoteImpl;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 
 import java.util.*;
@@ -12,6 +14,7 @@ import java.util.*;
 @Entity
 @Table(name = "person")
 @NoArgsConstructor
+@AllArgsConstructor
 public class PersonEntity implements Person {
 
     @Id
@@ -20,8 +23,9 @@ public class PersonEntity implements Person {
     String city;
     int age;
     @ElementCollection
+    @CollectionTable(name = "person_groups", joinColumns = @JoinColumn(name = "person_id"))
+    @Column(name = "group_id")
     List<String> groups = new ArrayList<>();
-
 
     public PersonEntity(String name, String city, int age) {
         this.id = UUID.randomUUID().toString();
@@ -54,7 +58,6 @@ public class PersonEntity implements Person {
     public void removeGroup(String groupId) {
         GroupRemote groupRemote = new GroupRemoteImpl();
 
-        //Removes the group from the group API, maybe not needed?
         groupRemote.removeGroup(groupId);
         groups.remove(groupId);
     }

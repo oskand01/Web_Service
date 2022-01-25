@@ -2,9 +2,7 @@ package com.example.personsrest.remote;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -12,11 +10,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Objects;
 
-@Slf4j
-@AllArgsConstructor
 public class GroupRemoteImpl implements GroupRemote {
-    WebClient webClient;
-    KeyCloakToken token;
+    private final WebClient webClient;
+    private KeyCloakToken token;
 
     public GroupRemoteImpl() {
         this.webClient = WebClient.builder()
@@ -24,7 +20,7 @@ public class GroupRemoteImpl implements GroupRemote {
                 .build();
     }
 
-    // New token for every webclient request to avoid timeout
+    // New token for every webclient request to avoid timeout while testing
 
     @Override
     public String getNameById(String groupId) {

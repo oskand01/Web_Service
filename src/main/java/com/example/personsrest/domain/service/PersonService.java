@@ -3,9 +3,9 @@ package com.example.personsrest.domain.service;
 import com.example.personsrest.domain.entity.Person;
 import com.example.personsrest.domain.entity.PersonEntity;
 import com.example.personsrest.domain.exception.PersonNotFoundException;
-import com.example.personsrest.domain.model.UpdatePerson;
 import com.example.personsrest.domain.repository.PersonRepository;
 import com.example.personsrest.domain.exception.GroupNotFoundException;
+import com.example.personsrest.domain.util.UUIDValidator;
 import com.example.personsrest.remote.GroupRemote;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,12 +41,12 @@ public class PersonService {
         return personRepository.save(person);
     }
 
-    public Person updatePerson(String id, UpdatePerson updatePerson) throws PersonNotFoundException {
+    public Person updatePerson(String id, String name, String city, int age) throws PersonNotFoundException {
         Person person = get(id);
 
-        person.setName(updatePerson.getName());
-        person.setCity(updatePerson.getCity());
-        person.setAge(updatePerson.getAge());
+        person.setName(name);
+        person.setCity(city);
+        person.setAge(age);
 
         return personRepository.save(person);
     }
@@ -63,30 +62,28 @@ public class PersonService {
     public Person addGroup(String id, String name) throws PersonNotFoundException {
         Person person = get(id);
         String groupId = groupRemote.createGroup(name);
-        log.info("\n\nGroupId: " + groupId + "\n");
         person.addGroup(groupId);
         return personRepository.save(person);
     }
 
     public Person removeGroup(String id, String group) throws PersonNotFoundException, GroupNotFoundException {
         Person person = get(id);
-        String groupId = group;
+        String groupId;
 
-        if (!isUUID(group)) {
-            groupId = person.getGroups().stream()
-                    .filter(g -> groupRemote.getNameById(g).equals(group))
-                    .collect(Collectors.joining());
+        if (group.length() == 36) {
+            String[] components = group.split("-");
+            groupId = (components.length == 5 && UUIDValidator.isValidUUID(group)) ? group : getGroupId(group, person.getGroups());
+        } else {
+            groupId = getGroupId(group, person.getGroups());
         }
 
         if (person.getGroups().contains(groupId)) {
             person.removeGroup(groupId);
-
             return personRepository.save(person);
         } else {
-            throw new GroupNotFoundException("Group '" + group);
+            throw new GroupNotFoundException(group);
         }
     }
-
 
     public Page<Person> filter(Map<String, String> params) {
         int pageSize = Integer.parseInt(params.getOrDefault("pagesize", "25"));
@@ -94,18 +91,16 @@ public class PersonService {
         String search = params.getOrDefault("search", "");
 
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("name").and(Sort.by("city")));
-
         return personRepository.findAllByNameContainingOrCityContaining(search, search, pageRequest);
     }
 
+    public String getRemoteGroupName(String groupId) {
+        return groupRemote.getNameById(groupId);
+    }
 
-    public boolean isUUID(String string) {
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            UUID.fromString(string);
-            return true;
-        } catch (Exception ex) {
-            return false;
-        }
+    private String getGroupId(String group, List<String> groups) {
+        return groups.stream()
+                .filter(g -> groupRemote.getNameById(g).equals(group))
+                .collect(Collectors.joining());
     }
 }

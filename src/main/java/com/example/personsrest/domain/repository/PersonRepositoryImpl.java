@@ -4,8 +4,10 @@ import com.example.personsrest.domain.entity.Person;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
 import javax.transaction.Transactional;
 import java.util.*;
+
 
 @AllArgsConstructor
 public class PersonRepositoryImpl implements PersonRepository {
@@ -20,6 +22,7 @@ public class PersonRepositoryImpl implements PersonRepository {
 
     @Override
     public List<Person> findAll() {
+
         return new ArrayList<>(personDBRepository.findAll());
     }
 
