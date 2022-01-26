@@ -17,7 +17,7 @@ public class PersonRepositoryImpl implements PersonRepository {
     @Override
     public Optional<Person> findById(String id) {
 
-        return personDBRepository.findById(id);
+        return personDBRepository.findById(id).map(a -> a);
     }
 
     @Override

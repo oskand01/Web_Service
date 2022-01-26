@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Size;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +86,7 @@ public class PersonController {
     }
 
     @PutMapping("{id}/addGroup/{groupName}")
-    public ResponseEntity<PersonDTO> addGroup(@PathVariable("id") String id, @PathVariable("groupName") @Size(min = 1, max = 30) String groupName) {
+    public ResponseEntity<PersonDTO> addGroup(@PathVariable("id") String id, @PathVariable("groupName") String groupName) {
         try {
             return ResponseEntity.ok(toDTO(personService.addGroup(id, groupName)));
         } catch (PersonNotFoundException e) {
